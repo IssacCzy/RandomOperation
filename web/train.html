@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>小学二年级口算模拟器</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <!-- Le styles -->
+    <link href="assets/css/bootstrap.css" rel="stylesheet">
+    <link href="assets/css/bootstrap-responsive.css" rel="stylesheet">
+    <link href="assets/css/docs.css" rel="stylesheet">
+    <link href="assets/js/google-code-prettify/prettify.css" rel="stylesheet">
+    <!-- 日期控件 -->
+    <link href="./bootstrap/css/bootstrap-datetimepicker.min.css" rel="stylesheet" media="screen">
+    <link rel="shortcut icon" href="assets/img/favicon.ico">
+    <!-- 必须要在前端页面中引入 eel.js -->
+    <script type="text/javascript" src="/eel.js"></script>
+    <style type="text/css">
+    .table td {
+        padding: 4px;
+    }
+
+    /*
+            设计椭圆
+        */
+    .point2 {
+        display: inline-block;
+        border-radius: 30px/30px;
+        margin: 0px 0.5em;
+        /*调整圆点的位置*/
+        background-color: #ddd;
+        vertical-align: baseline;
+    }
+
+    .v-align {
+        margin: 0 auto;
+        width: 200px;
+        height: 80px;
+        text-align: center;
+        line-height: 80px;
+        border: 1px solid #ddd;
+    }
+
+    .my_hr {
+        border-top: 3px solid red;
+        margin-left: 5px;
+        margin-right: 5px;
+        width: 85%;
+    }
+    </style>
+    <!-- 右侧悬浮 -->
+    <script type="text/javascript">
+    function scrollx(p) {
+        var d = document,
+            dd = d.documentElement,
+            db = d.body,
+            w = window,
+            o = d.getElementById(p.id),
+            ie6 = /msie 6/i.test(navigator.userAgent),
+            style, timer;
+        if (o) {
+            cssPub = ";position:" + (p.f && !ie6 ? 'fixed' : 'absolute') + ";" + (p.t != undefined ? 'top:' + p.t + 'px;' : 'bottom:0;');
+            if (p.r != undefined && p.l == undefined) {
+                o.style.cssText += cssPub + ('right:' + p.r + 'px;');
+            } else {
+                o.style.cssText += cssPub + ('margin-left:' + p.l + 'px;');
+            }
+            if (p.f && ie6) {
+                cssTop = ';top:expression(documentElement.scrollTop +' + (p.t == undefined ? dd.clientHeight - o.offsetHeight : p.t) + '+ "px" );';
+                cssRight = ';right:expression(documentElement.scrollright + ' + (p.r == undefined ? dd.clientWidth - o.offsetWidth : p.r) + ' + "px")';
+                if (p.r != undefined && p.l == undefined) {
+                    o.style.cssText += cssRight + cssTop;
+                } else {
+                    o.style.cssText += cssTop;
+                }
+                dd.style.cssText += ';background-image: url(about:blank);background-attachment:fixed;';
+            } else {
+                if (!p.f) {
+                    w.onresize = w.onscroll = function() {
+                        clearInterval(timer);
+                        timer = setInterval(function() {
+                            //双选择为了修复chrome 下xhtml解析时dd.scrollTop为 0
+                            var st = (dd.scrollTop || db.scrollTop),
+                                c;
+                            c = st - o.offsetTop + (p.t != undefined ? p.t : (w.innerHeight || dd.clientHeight) - o.offsetHeight);
+                            if (c != 0) {
+                                o.style.top = o.offsetTop + Math.ceil(Math.abs(c) / 10) * (c < 0 ? -1 : 1) + 'px';
+                            } else {
+                                clearInterval(timer);
+                            }
+                        }, 10)
+                    }
+                }
+            }
+        }
+    }
+    </script>
+</head>
+
+<body data-spy="scroll" style="padding-top: 20px;">
+    <div class="container-fluid">
+        <div class="row-fluid">
+            <center>
+                <h1 style="letter-spacing:5px;">正式训练</h1>
+            </center>
+        </div>
+        <!-- 正式训练: 《加、减混合运算》-->
+        <div class="row-fluid">
+            <blockquote>
+                <p>
+                    &nbsp;&nbsp;&nbsp;&nbsp;<i class="icon-forward"></i>
+                    <span style="font-size: 20px; font-weight:bold;">《加、减混合运算》</span>
+                </p>
+            </blockquote>
+            <div class="span5" id="add_subtract_column1" style="font-size:20px;">
+            </div>
+            <div class="span5" id="add_subtract_column2" style="font-size:20px;">
+            </div>
+        </div>
+        <div class="row-fluid">
+            <div class="span3">
+                <button style="margin-left: 100px; width: 150px;" class="btn btn-large btn-primary" type="button" onclick="check_result(3)">验&nbsp;证&nbsp;对&nbsp;错</button>
+            </div>
+            <div class="span9">
+                <h2 id='time_des3' style="color:blue; float: left; margin-left: 30px;"></h2>
+                <h2 id='right_des3' style="color:green; float: left; margin-left: 30px;"></h2>
+                <h2 id='wrong_des3' style="color:red; float: left; margin-left: 30px;"></h2>
+            </div>
+        </div>
+        <br>
+        <hr class="my_hr" />
+        <br>
+        <!-- 正式训练: 《10以内的连除》-->
+        <div class="row-fluid">
+            <blockquote>
+                <p>
+                    &nbsp;&nbsp;&nbsp;&nbsp;<i class="icon-forward"></i>
+                    <span style="font-size: 20px; font-weight:bold;">《10以内的连除》</span>
+                </p>
+            </blockquote>
+            <div class="span5" id="divide_in_ten_column1" style="font-size:20px;">
+            </div>
+            <div class="span5" id="divide_in_ten_column2" style="font-size:20px;">
+            </div>
+        </div>
+        <div class="row-fluid">
+            <div class="span3">
+                <button style="margin-left: 100px; width: 150px;" class="btn btn-large btn-primary" type="button" onclick="check_result(4)">验&nbsp;证&nbsp;对&nbsp;错</button>
+            </div>
+            <div class="span9">
+                <h2 id='time_des4' style="color:blue; float: left; margin-left: 30px;"></h2>
+                <h2 id='right_des4' style="color:green; float: left; margin-left: 30px;"></h2>
+                <h2 id='wrong_des4' style="color:red; float: left; margin-left: 30px;"></h2>
+            </div>
+        </div>
+        <br>
+        <hr class="my_hr" />
+        <br>
+        <!-- 正式训练: 《100以内的有余数的除法》-->
+        <div class="row-fluid">
+            <blockquote>
+                <p>
+                    &nbsp;&nbsp;&nbsp;&nbsp;<i class="icon-forward"></i>
+                    <span style="font-size: 20px; font-weight:bold;">《100以内的有余数的除法》</span>
+                </p>
+            </blockquote>
+            <div class="span5" id="divide_with_remainder_column1" style="font-size:20px;">
+            </div>
+            <div class="span5" id="divide_with_remainder_column2" style="font-size:20px;">
+            </div>
+        </div>
+        <div class="row-fluid">
+            <div class="span3">
+                <button style="margin-left: 100px; width: 150px;" class="btn btn-large btn-primary" type="button" onclick="check_result(5)">验&nbsp;证&nbsp;对&nbsp;错</button>
+            </div>
+            <div class="span9">
+                <h2 id='time_des5' style="color:blue; float: left; margin-left: 30px;"></h2>
+                <h2 id='right_des5' style="color:green; float: left; margin-left: 30px;"></h2>
+                <h2 id='wrong_des5' style="color:red; float: left; margin-left: 30px;"></h2>
+            </div>
+        </div>
+        <br>
+        <hr class="my_hr" />
+        <br>
+        <!-- 正式训练: 《100以内乘除混合运算》-->
+        <div class="row-fluid">
+            <blockquote>
+                <p>
+                    &nbsp;&nbsp;&nbsp;&nbsp;<i class="icon-forward"></i>
+                    <span style="font-size: 20px; font-weight:bold;">《100以内乘除混合运算》</span>
+                </p>
+            </blockquote>
+            <div class="span5" id="multiply_divide_column1" style="font-size:20px;">
+            </div>
+            <div class="span5" id="multiply_divide_column2" style="font-size:20px;">
+            </div>
+        </div>
+        <div class="row-fluid">
+            <div class="span3">
+                <button style="margin-left: 100px; width: 150px;" class="btn btn-large btn-primary" type="button" onclick="check_result(6)">验&nbsp;证&nbsp;对&nbsp;错</button>
+            </div>
+            <div class="span9">
+                <h2 id='time_des6' style="color:blue; float: left; margin-left: 30px;"></h2>
+                <h2 id='right_des6' style="color:green; float: left; margin-left: 30px;"></h2>
+                <h2 id='wrong_des6' style="color:red; float: left; margin-left: 30px;"></h2>
+            </div>
+        </div>
+        <br>
+        <hr class="my_hr" />
+        <br>
+        <!-- 正式训练: 《乘加、乘减混合运算》-->
+        <div class="row-fluid">
+            <blockquote>
+                <p>
+                    &nbsp;&nbsp;&nbsp;&nbsp;<i class="icon-forward"></i>
+                    <span style="font-size: 20px; font-weight:bold;">《乘加、乘减混合运算》</span>
+                </p>
+            </blockquote>
+            <div class="span5" id="multiply_add_subtract_column1" style="font-size:20px;">
+            </div>
+            <div class="span5" id="multiply_add_subtract_column2" style="font-size:20px;">
+            </div>
+        </div>
+        <div class="row-fluid">
+            <div class="span3">
+                <button style="margin-left: 100px; width: 150px;" class="btn btn-large btn-primary" type="button" onclick="check_result(7)">验&nbsp;证&nbsp;对&nbsp;错</button>
+            </div>
+            <div class="span9">
+                <h2 id='time_des7' style="color:blue; float: left; margin-left: 30px;"></h2>
+                <h2 id='right_des7' style="color:green; float: left; margin-left: 30px;"></h2>
+                <h2 id='wrong_des7' style="color:red; float: left; margin-left: 30px;"></h2>
+            </div>
+        </div>
+        <br>
+        <hr class="my_hr" />
+        <br>
+        <!-- 正式训练: 《除加、除减混合运算》-->
+        <div class="row-fluid">
+            <blockquote>
+                <p>
+                    &nbsp;&nbsp;&nbsp;&nbsp;<i class="icon-forward"></i>
+                    <span style="font-size: 20px; font-weight:bold;">《除加、除减混合运算》</span>
+                </p>
+            </blockquote>
+            <div class="span5" id="divide_add_subtract_column1" style="font-size:20px;">
+            </div>
+            <div class="span5" id="divide_add_subtract_column2" style="font-size:20px;">
+            </div>
+        </div>
+        <div class="row-fluid">
+            <div class="span3">
+                <button style="margin-left: 100px; width: 150px;" class="btn btn-large btn-primary" type="button" onclick="check_result(8)">验&nbsp;证&nbsp;对&nbsp;错</button>
+            </div>
+            <div class="span9">
+                <h2 id='time_des8' style="color:blue; float: left; margin-left: 30px;"></h2>
+                <h2 id='right_des8' style="color:green; float: left; margin-left: 30px;"></h2>
+                <h2 id='wrong_des8' style="color:red; float: left; margin-left: 30px;"></h2>
+            </div>
+        </div>
+        <br>
+        <hr class="my_hr" />
+        <br>
+        <!-- 正式训练: 《含小括号的（加减）（乘除）混合运算》-->
+        <div class="row-fluid">
+            <blockquote>
+                <p>
+                    &nbsp;&nbsp;&nbsp;&nbsp;<i class="icon-forward"></i>
+                    <span style="font-size: 20px; font-weight:bold;">《含小括号的（加减）（乘除）混合运算》</span>
+                </p>
+            </blockquote>
+            <div class="span5" id="add_subtract_multiply_divide_with_brackets_column1" style="font-size:20px;">
+            </div>
+            <div class="span5" id="add_subtract_multiply_divide_with_brackets_column2" style="font-size:20px;">
+            </div>
+        </div>
+        <div class="row-fluid">
+            <div class="span3">
+                <button style="margin-left: 100px; width: 150px;" class="btn btn-large btn-primary" type="button" onclick="check_result(9)">验&nbsp;证&nbsp;对&nbsp;错</button>
+            </div>
+            <div class="span9">
+                <h2 id='time_des9' style="color:blue; float: left; margin-left: 30px;"></h2>
+                <h2 id='right_des9' style="color:green; float: left; margin-left: 30px;"></h2>
+                <h2 id='wrong_des9' style="color:red; float: left; margin-left: 30px;"></h2>
+            </div>
+        </div>
+        <br>
+    </div>
+    <div id="float_right" class="point2 v-align" style="width:150px; height: 70px; background-color: #d9edf7; margin-right: 20px;">
+        <input type="text" style="width:80px; font-size:20px; font-weight: bold;" id="timer" /><br>
+        <button style="margin-top:-25px;margin-left: 10px;" class="btn btn-large btn-warning" onclick="pause(this)" id="pause" state="on">暂停</button>
+    </div>
+    <script type="text/javascript">
+    //左右侧固定浮动的div建议放在html的最低部
+    //右侧固定
+    scrollx({ id: 'float_right', r: 0, t: 200, f: 1 });
+
+    /*
+    scrollx参数说明
+
+    id：浮动对象的id
+    r：右边距（窗口右边距，不写为靠左浮动）
+    l：左边距（距离父级对象的左边距） “r”和“l”只能有其中一个参数
+    t：上边距（默认贴着底边，0是贴着顶边）
+    f：1表示固定（不写或者0表示滚动）
+    */
+    </script>
+    <script src="assets/js/jquery.js"></script>
+    <script type="text/javascript" src="./bootstrap/js/bootstrap.min.js"></script>
+    <!--计时器-->
+    <script type="text/javascript">
+    var user_time = 0; // 总共用时多少秒
+    var ele_timer = document.getElementById("timer");
+    var n_sec = 0; //秒
+    var n_min = 0; //分
+    var n_hour = 0; //时
+
+    //60秒 === 1分
+    //60分 === 1小时
+    function timer() {
+        return setInterval(function() {
+
+            var str_sec = n_sec;
+            var str_min = n_min;
+            var str_hour = n_hour;
+            if (n_sec < 10) {
+                str_sec = "0" + n_sec;
+            }
+            if (n_min < 10) {
+                str_min = "0" + n_min;
+            }
+
+            if (n_hour < 10) {
+                str_hour = "0" + n_hour;
+            }
+
+            var time = str_hour + ":" + str_min + ":" + str_sec;
+            ele_timer.value = time;
+            n_sec++;
+            user_time++;
+            if (n_sec > 59) {
+                n_sec = 0;
+                n_min++;
+            }
+            if (n_min > 59) {
+                n_sec = 0;
+                n_hour++;
+            }
+
+
+        }, 1000);
+    }
+
+    var n_timer = timer();
+
+    //暂停和继续
+    function pause(self) {
+        var state = self.getAttribute("state");
+        if (state === "on") {
+            clearInterval(n_timer);
+            self.textContent = "继续";
+            self.setAttribute("state", "off");
+        } else {
+            n_timer = timer();
+            self.textContent = "暂停";
+            self.setAttribute("state", "on");
+        }
+    }
+
+    function restart() {
+        clearInterval(n_timer);
+        n_sec = 0;
+        n_min = 0;
+        n_hour = 0;
+        n_timer = timer();
+
+        var ele_pause = document.getElementById("pause");
+        ele_pause.textContent = "暂停";
+        ele_pause.setAttribute("state", "on");
+    }
+    </script>
+    <script type="text/javascript">
+    var row_bgs = ['#dff0d8', '#f2dede', '#fcf8e3', '#d9edf7'];
+    // 调用 python 中带有返回值的函数
+    // 因为 JS 不允许阻塞，所以要使用 await 避免使用回调函数
+    async function train_date() {
+        //这里用let不用var,调用的python函数后面是两对括号
+        let base_info_str = await eel.train_date()();
+        var base_info_json_obj = JSON.parse(base_info_str);
+
+        // 正式训练：《加、减混合运算》
+        var add_subtract_subjects = base_info_json_obj['add_subtract_subjects'];
+        if (add_subtract_subjects != null) {
+            var column_1_html = '<table class="table"><tbody><thead><tr><th>编号</th><th>题目</th></tr></thead><tbody>';
+            for (var i = 0; i < Math.ceil(add_subtract_subjects.length / 2); i++) {
+                column_1_html += '<tr style="background-color:' + row_bgs[i % 4] + '">';
+                column_1_html += '<td>' + (i + 1) + '、 </td><td>' + add_subtract_subjects[i]['subject_str'] + ' = <input style="width:50px;" type="text" name="q_result3" data_result="' + add_subtract_subjects[i]['result'] + '" /></td></tr>';
+            }
+            column_1_html += '</tbody></table>';
+            $("#add_subtract_column1").html(column_1_html);
+
+            var column_2_html = '<table class="table"><tbody><thead><tr><th>编号</th><th>题目</th></tr></thead><tbody>';
+            for (var i = Math.ceil(add_subtract_subjects.length / 2); i < add_subtract_subjects.length; i++) {
+                column_2_html += '<tr style="background-color:' + row_bgs[i % 4] + '">';
+                column_2_html += '<td>' + (i + 1) + '、 </td><td>' + add_subtract_subjects[i]['subject_str'] + ' = <input style="width:50px;" type="text" name="q_result3" data_result="' + add_subtract_subjects[i]['result'] + '" /></td></tr>';
+            }
+            column_2_html += '</tbody></table>';
+            $("#add_subtract_column2").html(column_2_html);
+        }
+
+
+        // 正式训练：《10以内的连除》
+        var divide_in_ten_subjects = base_info_json_obj['divide_in_ten_subjects'];
+        if (divide_in_ten_subjects != null) {
+            var column_1_html = '<table class="table"><tbody><thead><tr><th>编号</th><th>题目</th></tr></thead><tbody>';
+            for (var i = 0; i < Math.ceil(divide_in_ten_subjects.length / 2); i++) {
+                column_1_html += '<tr style="background-color:' + row_bgs[i % 4] + '">';
+                column_1_html += '<td>' + (i + 1) + '、 </td><td>' + divide_in_ten_subjects[i]['subject_str'] + ' = <input style="width:50px;" type="text" name="q_result4" data_result="' + divide_in_ten_subjects[i]['result'] + '" /></td></tr>';
+            }
+            column_1_html += '</tbody></table>';
+            $("#divide_in_ten_column1").html(column_1_html);
+
+            var column_2_html = '<table class="table"><tbody><thead><tr><th>编号</th><th>题目</th></tr></thead><tbody>';
+            for (var i = Math.ceil(divide_in_ten_subjects.length / 2); i < divide_in_ten_subjects.length; i++) {
+                column_2_html += '<tr style="background-color:' + row_bgs[i % 4] + '">';
+                column_2_html += '<td>' + (i + 1) + '、 </td><td>' + divide_in_ten_subjects[i]['subject_str'] + ' = <input style="width:50px;" type="text" name="q_result4" data_result="' + divide_in_ten_subjects[i]['result'] + '" /></td></tr>';
+            }
+            column_2_html += '</tbody></table>';
+            $("#divide_in_ten_column2").html(column_2_html);
+        }
+
+
+        // 正式训练：《100以内的有余数的除法》
+        var divide_with_remainder_subjects = base_info_json_obj['divide_with_remainder_subjects'];
+        if (divide_with_remainder_subjects != null) {
+            var column_1_html = '<table class="table"><tbody><thead><tr><th>编号</th><th>题目</th></tr></thead><tbody>';
+            for (var i = 0; i < Math.ceil(divide_with_remainder_subjects.length / 2); i++) {
+                column_1_html += '<tr style="background-color:' + row_bgs[i % 4] + '">';
+                column_1_html += '<td>' + (i + 1) + '、 </td><td>' + divide_with_remainder_subjects[i]['dividend'] + ' ÷ ' + divide_with_remainder_subjects[i]['divisor'] + ' = <input style="width:50px;" type="text" name="q_result5" data_result="' + divide_with_remainder_subjects[i]['result'] + '" /> 余 <input style="width:50px;" type="text" name="q_result_remainder" data_result="' + divide_with_remainder_subjects[i]['remainder'] + '" />' + '</td></tr>';
+            }
+            column_1_html += '</tbody></table>';
+            $("#divide_with_remainder_column1").html(column_1_html);
+
+            var column_2_html = '<table class="table"><tbody><thead><tr><th>编号</th><th>题目</th></tr></thead><tbody>';
+            for (var i = Math.ceil(divide_with_remainder_subjects.length / 2); i < divide_with_remainder_subjects.length; i++) {
+                column_2_html += '<tr style="background-color:' + row_bgs[i % 4] + '">';
+                column_2_html += '<td>' + (i + 1) + '、 </td><td>' + divide_with_remainder_subjects[i]['dividend'] + ' ÷ ' + divide_with_remainder_subjects[i]['divisor'] + ' = <input style="width:50px;" type="text" name="q_result5" data_result="' + divide_with_remainder_subjects[i]['result'] + '" /> 余 <input style="width:50px;" type="text" name="q_result_remainder" data_result="' + divide_with_remainder_subjects[i]['remainder'] + '" />' + '</td></tr>';
+            }
+            column_2_html += '</tbody></table>';
+            $("#divide_with_remainder_column2").html(column_2_html);
+        }
+
+
+        // 正式训练：《100以内乘除混合运算》
+        var multiply_divide_subjects = base_info_json_obj['multiply_divide_subjects'];
+        if (multiply_divide_subjects != null) {
+            var column_1_html = '<table class="table"><tbody><thead><tr><th>编号</th><th>题目</th></tr></thead><tbody>';
+            for (var i = 0; i < Math.ceil(multiply_divide_subjects.length / 2); i++) {
+                column_1_html += '<tr style="background-color:' + row_bgs[i % 4] + '">';
+                column_1_html += '<td>' + (i + 1) + '、 </td><td>' + multiply_divide_subjects[i]['subject_str'] + ' = <input style="width:50px;" type="text" name="q_result6" data_result="' + multiply_divide_subjects[i]['result'] + '" /></td></tr>';
+            }
+            column_1_html += '</tbody></table>';
+            $("#multiply_divide_column1").html(column_1_html);
+
+            var column_2_html = '<table class="table"><tbody><thead><tr><th>编号</th><th>题目</th></tr></thead><tbody>';
+            for (var i = Math.ceil(multiply_divide_subjects.length / 2); i < multiply_divide_subjects.length; i++) {
+                column_2_html += '<tr style="background-color:' + row_bgs[i % 4] + '">';
+                column_2_html += '<td>' + (i + 1) + '、 </td><td>' + multiply_divide_subjects[i]['subject_str'] + ' = <input style="width:50px;" type="text" name="q_result6" data_result="' + multiply_divide_subjects[i]['result'] + '" /></td></tr>';
+            }
+            column_2_html += '</tbody></table>';
+            $("#multiply_divide_column2").html(column_2_html);
+        }
+
+
+        // 正式训练：《乘加、乘减混合运算》
+        var multiply_add_subtract_subjects = base_info_json_obj['multiply_add_subtract_subjects'];
+        if (multiply_add_subtract_subjects != null) {
+            var column_1_html = '<table class="table"><tbody><thead><tr><th>编号</th><th>题目</th></tr></thead><tbody>';
+            for (var i = 0; i < Math.ceil(multiply_add_subtract_subjects.length / 2); i++) {
+                column_1_html += '<tr style="background-color:' + row_bgs[i % 4] + '">';
+                column_1_html += '<td>' + (i + 1) + '、 </td><td>' + multiply_add_subtract_subjects[i]['subject_str'] + ' = <input style="width:50px;" type="text" name="q_result7" data_result="' + multiply_add_subtract_subjects[i]['result'] + '" /></td></tr>';
+            }
+            column_1_html += '</tbody></table>';
+            $("#multiply_add_subtract_column1").html(column_1_html);
+
+            var column_2_html = '<table class="table"><tbody><thead><tr><th>编号</th><th>题目</th></tr></thead><tbody>';
+            for (var i = Math.ceil(multiply_add_subtract_subjects.length / 2); i < multiply_add_subtract_subjects.length; i++) {
+                column_2_html += '<tr style="background-color:' + row_bgs[i % 4] + '">';
+                column_2_html += '<td>' + (i + 1) + '、 </td><td>' + multiply_add_subtract_subjects[i]['subject_str'] + ' = <input style="width:50px;" type="text" name="q_result7" data_result="' + multiply_add_subtract_subjects[i]['result'] + '" /></td></tr>';
+            }
+            column_2_html += '</tbody></table>';
+            $("#multiply_add_subtract_column2").html(column_2_html);
+        }
+
+
+
+        // 正式训练：《除加、除减混合运算》
+        var divide_add_subtract_subjects = base_info_json_obj['divide_add_subtract_subjects'];
+        if (divide_add_subtract_subjects != null) {
+            var column_1_html = '<table class="table"><tbody><thead><tr><th>编号</th><th>题目</th></tr></thead><tbody>';
+            for (var i = 0; i < Math.ceil(divide_add_subtract_subjects.length / 2); i++) {
+                column_1_html += '<tr style="background-color:' + row_bgs[i % 4] + '">';
+                column_1_html += '<td>' + (i + 1) + '、 </td><td>' + divide_add_subtract_subjects[i]['subject_str'] + ' = <input style="width:50px;" type="text" name="q_result8" data_result="' + divide_add_subtract_subjects[i]['result'] + '" /></td></tr>';
+            }
+            column_1_html += '</tbody></table>';
+            $("#divide_add_subtract_column1").html(column_1_html);
+
+            var column_2_html = '<table class="table"><tbody><thead><tr><th>编号</th><th>题目</th></tr></thead><tbody>';
+            for (var i = Math.ceil(divide_add_subtract_subjects.length / 2); i < divide_add_subtract_subjects.length; i++) {
+                column_2_html += '<tr style="background-color:' + row_bgs[i % 4] + '">';
+                column_2_html += '<td>' + (i + 1) + '、 </td><td>' + divide_add_subtract_subjects[i]['subject_str'] + ' = <input style="width:50px;" type="text" name="q_result8" data_result="' + divide_add_subtract_subjects[i]['result'] + '" /></td></tr>';
+            }
+            column_2_html += '</tbody></table>';
+            $("#divide_add_subtract_column2").html(column_2_html);
+        }
+
+
+        // 正式训练：《含小括号的（加减）（乘除）混合运算》
+        var add_subtract_multiply_divide_with_brackets_subjects = base_info_json_obj['add_subtract_multiply_divide_with_brackets_subjects'];
+        if (add_subtract_multiply_divide_with_brackets_subjects != null) {
+            var column_1_html = '<table class="table"><tbody><thead><tr><th>编号</th><th>题目</th></tr></thead><tbody>';
+            for (var i = 0; i < Math.ceil(add_subtract_multiply_divide_with_brackets_subjects.length / 2); i++) {
+                column_1_html += '<tr style="background-color:' + row_bgs[i % 4] + '">';
+                column_1_html += '<td>' + (i + 1) + '、 </td><td>' + add_subtract_multiply_divide_with_brackets_subjects[i]['subject_str'] + ' = <input style="width:50px;" type="text" name="q_result9" data_result="' + add_subtract_multiply_divide_with_brackets_subjects[i]['result'] + '" /></td></tr>';
+            }
+            column_1_html += '</tbody></table>';
+            $("#add_subtract_multiply_divide_with_brackets_column1").html(column_1_html);
+
+            var column_2_html = '<table class="table"><tbody><thead><tr><th>编号</th><th>题目</th></tr></thead><tbody>';
+            for (var i = Math.ceil(add_subtract_multiply_divide_with_brackets_subjects.length / 2); i < add_subtract_multiply_divide_with_brackets_subjects.length; i++) {
+                column_2_html += '<tr style="background-color:' + row_bgs[i % 4] + '">';
+                column_2_html += '<td>' + (i + 1) + '、 </td><td>' + add_subtract_multiply_divide_with_brackets_subjects[i]['subject_str'] + ' = <input style="width:50px;" type="text" name="q_result9" data_result="' + add_subtract_multiply_divide_with_brackets_subjects[i]['result'] + '" /></td></tr>';
+            }
+            column_2_html += '</tbody></table>';
+            $("#add_subtract_multiply_divide_with_brackets_column2").html(column_2_html);
+        }
+    }
+
+    //页面加载时调用 python 函数获取初始化数据渲染页面
+    train_date();
+
+    // 关闭浏览器驱动并退出
+    function quite() {
+        eel.quite();
+
+        // chrome，firefox等中 window.close() 不起作用
+        window.open("about:blank", "_self").close();
+    }
+
+
+    // 验&nbsp;证&nbsp;对&nbsp;错
+    async function check_result(type_num) {
+
+        var result_input_name = 'q_result' + type_num;
+        // 获取所有的至输入框
+        var result_eles = $("input[name=" + result_input_name + "]");
+
+
+        // 除法，带有余数
+        var remainder_input_name = null;
+        var remainder_eles = null;
+        if (parseInt(type_num) == 5) {
+            var remainder_input_name = 'q_result_remainder';
+            var remainder_eles = $("input[name=" + remainder_input_name + "]");
+        }
+
+        var ritht_count = 0;
+        var wrong_count = 0;
+        for (var i = 0; i < result_eles.length; i++) {
+            var rel_result = $(result_eles[i]).attr('data_result');
+            var input_result = $(result_eles[i]).val().trim();
+
+            if (parseInt(type_num) == 5) {
+
+                var rel_remainder = $(remainder_eles[i]).attr('data_result');
+                var input_remainder = $(remainder_eles[i]).val().trim();
+
+                $(remainder_eles[i]).nextAll('i').remove(); // 删除兄弟 i 元素
+                if (rel_result == input_result && rel_remainder == input_remainder) { // 结果和余数都匹配
+                    $(remainder_eles[i]).after('<i class="icon-ok" style="margin-left:3px;"></i>');
+                    $(remainder_eles[i]).parents('tr').css('background-color', '#dff0d8');
+                    ritht_count += 1;
+                } else {
+                    $(remainder_eles[i]).after('<i class="icon-remove" style="margin-left:3px;"></i>');
+                    $(remainder_eles[i]).parents('tr').css('background-color', '#f2dede');
+                    wrong_count += 1;
+                }
+            } else {
+                $(result_eles[i]).nextAll('i').remove(); // 删除兄弟 i 元素
+                if (rel_result == input_result) {
+                    $(result_eles[i]).after('<i class="icon-ok" style="margin-left:3px;"></i>');
+                    $(result_eles[i]).parents('tr').css('background-color', '#dff0d8');
+                    ritht_count += 1;
+                } else {
+                    $(result_eles[i]).after('<i class="icon-remove" style="margin-left:3px;"></i>');
+                    $(result_eles[i]).parents('tr').css('background-color', '#f2dede');
+                    wrong_count += 1;
+                }
+            }
+        }
+
+        $('#time_des' + type_num).html();
+        $('#right_des' + type_num).html();
+        $('#wrong_des' + type_num).html();
+
+        $('#time_des' + type_num).html('已累计消耗：' + (parseInt(user_time / 60) + 1) + ' 分钟');
+        $('#right_des' + type_num).html('正确：' + ritht_count + ' 个');
+        $('#wrong_des' + type_num).html('错误：' + wrong_count + ' 个');
+
+
+        // 2、结果全部通过后：保存数据，并跳转到历史统计页
+        var all_result = $("input[name^='q_result']"); // 选择name前缀为q_result的所有input的jQuery对象
+
+        var no_pass = 0;
+        for (var i = 0; i < all_result.length; i++) {
+            var rel_result = $(all_result[i]).attr('data_result');
+            var input_result = $(all_result[i]).val().trim();
+            if (rel_result != input_result) {
+                no_pass += 1;
+            }
+        }
+
+        if (no_pass == 0) {
+            // a、数据保存至服务器
+            var data = {
+                'user_time': parseInt(user_time / 60) + 1,
+                'type': 2 // 1:热身   2：正式
+            }
+            await eel.save_result(data)();
+
+            // b、跳转到历史统计页
+            window.location.href = 'history.html';
+        }
+    }
+    </script>
+</body>
+
+</html>

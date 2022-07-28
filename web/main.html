@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>每天口算100题-小学二年级</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <!-- Le styles -->
+    <link href="assets/css/bootstrap.css" rel="stylesheet">
+    <link href="assets/css/bootstrap-responsive.css" rel="stylesheet">
+    <link href="assets/css/docs.css" rel="stylesheet">
+    <link href="assets/js/google-code-prettify/prettify.css" rel="stylesheet">
+    <!-- 日期控件 -->
+    <link href="./bootstrap/css/bootstrap-datetimepicker.min.css" rel="stylesheet" media="screen">
+    <link rel="shortcut icon" href="assets/img/favicon.ico">
+    <!-- 必须要在前端页面中引入 eel.js -->
+    <script type="text/javascript" src="/eel.js"></script>
+    <style type="text/css">
+    /*
+        设计圆点
+    */
+    .point {
+        display: inline-block;
+        border-radius: 500px;
+        margin: 0px 0.5em;
+        /*调整圆点的位置*/
+        background-color: #ddd;
+        vertical-align: baseline;
+    }
+
+    /*
+        设计椭圆
+    */
+    .point2 {
+        display: inline-block;
+        border-radius: 30px/30px;
+        margin: 0px 0.5em;
+        /*调整圆点的位置*/
+        background-color: #ddd;
+        vertical-align: baseline;
+    }
+
+    .v-align {
+        margin: 0 auto;
+        width: 200px;
+        height: 80px;
+        text-align: center;
+        line-height: 80px;
+        border: 1px solid #ddd;
+    }
+    </style>
+</head>
+
+<body>
+    <div class="container-fluid">
+        <div class="row-fluid">
+            <div class="span12" style="font-size:20px;">
+                <center>
+                    <div class="point2 v-align" style="width:500px;height: 100px;background-color: #95EC69;" onclick="go();">开始练习</div>
+                </center>
+            </div>
+        </div>
+    </div>
+    <script src="assets/js/jquery.js"></script>
+    <script type="text/javascript" src="./bootstrap/js/bootstrap.min.js"></script>
+    <script type="text/javascript">
+        function go(){
+
+        }
+
+    // 调用 python 中带有返回值的函数
+    // 因为 JS 不允许阻塞，所以要使用 await 避免使用回调函数
+    async function init_date() {
+        //这里用let不用var,调用的python函数后面是两对括号
+        let base_info_str = await eel.init_date()();
+
+        var base_info_json_obj = JSON.parse(base_info_str);
+        var items = base_info_json_obj['items'];
+
+        // 获取题目数据
+        if (items != null) {
+            var column_1_html = '<table class="table"><tbody><thead><tr><th>编号</th><th>题目</th></tr></thead><tbody>';
+            for (var i = 0; i < 50; i++) {
+
+                column_1_html += '<tr style="background-color:' + row_bgs[i % 4] + '">';
+
+                column_1_html += '<td>' + (i + 1) + '、 </td><td>' + items[i]['num_1'] + ' ' + items[i]['operator_1'] + ' ' + items[i]['num_2'] + ' ' + items[i]['operator_2'] + ' ' + items[i]['num_3'] + ' = <input style="width:50px;" type="text" name="q_result" data_result="' + items[i]['result'] + '" /></td></tr>';
+            }
+            column_1_html += '</tbody></table>';
+            $("#column1").html(column_1_html);
+
+            var column_2_html = '<table class="table"><tbody><thead><tr><th>编号</th><th>题目</th></tr></thead><tbody>';
+            for (var i = 50; i < 100; i++) {
+                column_2_html += '<tr style="background-color:' + row_bgs[(i - 50) % 4] + '">';
+
+                column_2_html += '<td>' + (i + 1) + '、 </td><td>' + items[i]['num_1'] + ' ' + items[i]['operator_1'] + ' ' + items[i]['num_2'] + ' ' + items[i]['operator_2'] + ' ' + items[i]['num_3'] + ' = <input style="width:50px;" type="text" name="q_result" data_result="' + items[i]['result'] + '" /></td></tr>';
+            }
+            column_2_html += '</tbody></table>';
+            $("#column2").html(column_2_html);
+        }
+    }
+
+
+    // 关闭浏览器驱动并退出
+    function quite() {
+        eel.quite();
+
+        // chrome，firefox等中 window.close() 不起作用
+        window.open("about:blank", "_self").close();
+    }
+    </script>
+</body>
+
+</html>
